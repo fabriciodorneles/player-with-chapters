@@ -2,6 +2,8 @@ import { ChevronDown } from "lucide-react";
 import { Lesson } from "./Lesson";
 import * as Collapsible from "@radix-ui/react-collapsible";
 import { useAppSelector } from "../store";
+import { useDispatch } from "react-redux";
+import { play } from "../store/slices/player";
 
 interface ModuleProps {
   moduleIndex: number;
@@ -10,11 +12,16 @@ interface ModuleProps {
 }
 
 export const Module = ({ moduleIndex, title, lessonsAmount }: ModuleProps) => {
-  const lesson = useAppSelector(
+  const dispatch = useDispatch();
+  const currentLesson = useAppSelector(
+    (state) => state.player.course.currentLesson
+  );
+  const lessons = useAppSelector(
     (state) => state.player.course.modules[moduleIndex].lessons
   );
+
   return (
-    <Collapsible.Root className="group">
+    <Collapsible.Root className="group" defaultOpen={moduleIndex === 0}>
       <Collapsible.Trigger className="flex w-full ">
         <button className="flex w-full items-center gap-3 bg-zinc-800 p-4">
           <div className="flex h-10 w-10 rounded-full items-center justify-center bg-zinc-950 text-sm">
@@ -29,13 +36,16 @@ export const Module = ({ moduleIndex, title, lessonsAmount }: ModuleProps) => {
       </Collapsible.Trigger>
       <Collapsible.Content>
         <nav className="relative flex flex-col gap-4 p-4">
-          {lesson.map((lesson, index) => (
+          {lessons.map((lesson, lessonIndex) => (
             <Lesson
-              key={index}
+              key={lessonIndex}
               title={lesson.title}
               duration={lesson.duration}
-              moduleIndex={moduleIndex}
-              lessonIndex={index}
+              onPlay={() => dispatch(play({ moduleIndex, lessonIndex }))}
+              isSelected={
+                currentLesson.moduleIndex === moduleIndex &&
+                currentLesson.lessonIndex === lessonIndex
+              }
             />
           ))}
         </nav>

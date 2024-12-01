@@ -1,6 +1,12 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { useAppSelector } from "..";
 
-const playerSlice = createSlice({
+interface currentLesson {
+  lessonIndex: number;
+  moduleIndex: number;
+}
+
+export const playerSlice = createSlice({
   name: "player",
   initialState: {
     course: {
@@ -63,13 +69,39 @@ const playerSlice = createSlice({
     },
   },
   reducers: {
-    setCurrentLesson: (state, action) => {
+    play: (state, action: PayloadAction<currentLesson>) => {
       state.course.currentLesson.lessonIndex = action.payload.lessonIndex;
       state.course.currentLesson.moduleIndex = action.payload.moduleIndex;
+    },
+    next: (state) => {
+      const nextLessonIndex = state.course.currentLesson.lessonIndex + 1;
+      const moduleIndex = state.course.currentLesson.moduleIndex;
+      const nextLesson =
+        state.course.modules[moduleIndex].lessons[nextLessonIndex];
+
+      if (nextLesson) {
+        state.course.currentLesson.lessonIndex = nextLessonIndex;
+      } else {
+        const nextModule = state.course.modules[moduleIndex + 1];
+        if (nextModule) {
+          state.course.currentLesson.moduleIndex = moduleIndex + 1;
+          state.course.currentLesson.lessonIndex = 0;
+        }
+      }
     },
   },
 });
 
 export const player = playerSlice.reducer;
 
-export const { setCurrentLesson } = playerSlice.actions;
+export const { play, next } = playerSlice.actions;
+
+export const useCurrentLesson = () => {
+  return useAppSelector((state) => {
+    const { lessonIndex, moduleIndex } = state.player.course.currentLesson;
+    const currentModule = state.player.course.modules[moduleIndex];
+    const currentLesson = currentModule.lessons[lessonIndex];
+
+    return { currentLesson, currentModule };
+  });
+};

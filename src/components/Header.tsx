@@ -1,18 +1,13 @@
-import { useAppSelector } from "../store";
+import { useCurrentLesson } from "../store/slices/player";
 
 export const Header = () => {
-  const currentLesson = useAppSelector(
-    (state) => state.player.course.currentLesson
-  );
-  const currentModuleTitle = useAppSelector(
-    (state) => state.player.course.modules[currentLesson.moduleIndex].title
-  );
+  const { currentLesson, currentModule } = useCurrentLesson();
   return (
     <header>
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-bold">Fundamentos do Redux</h1>
+        <h1 className="text-2xl font-bold">{currentLesson.title}</h1>
         <span className="text-sm text-zinc-400">
-          {`Módulo "${currentModuleTitle}"`}
+          {`Módulo "${currentModule.title}"`}
         </span>
       </div>
     </header>
