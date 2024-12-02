@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import { player as reducer, play, next } from "./player";
 
 const initialStateMock = {
+  currentLesson: {
+    lessonIndex: 0,
+    moduleIndex: 0,
+  },
+  isLoading: false,
   course: {
-    currentLesson: {
-      lessonIndex: 0,
-      moduleIndex: 0,
-    },
+    id: 1,
     modules: [
       {
         id: "1",
@@ -41,7 +43,7 @@ describe("playerSlice", () => {
       initialStateMock,
       play({ moduleIndex: 1, lessonIndex: 2 })
     );
-    expect(state.course.currentLesson).toEqual({
+    expect(state.currentLesson).toEqual({
       moduleIndex: 1,
       lessonIndex: 2,
     });
@@ -49,7 +51,7 @@ describe("playerSlice", () => {
 
   it("should be able to play next video automaticaly ", () => {
     const state = reducer(initialStateMock, next());
-    expect(state.course.currentLesson).toEqual({
+    expect(state.currentLesson).toEqual({
       moduleIndex: 0,
       lessonIndex: 1,
     });
@@ -58,18 +60,16 @@ describe("playerSlice", () => {
   it("should be able to play next video in next module automaticaly ", () => {
     const state = reducer(
       {
-        course: {
-          ...initialStateMock.course,
-          currentLesson: {
-            moduleIndex: 0,
-            lessonIndex: 1,
-          },
+        ...initialStateMock,
+        currentLesson: {
+          moduleIndex: 0,
+          lessonIndex: 1,
         },
       },
       next()
     );
 
-    expect(state.course.currentLesson).toEqual({
+    expect(state.currentLesson).toEqual({
       moduleIndex: 1,
       lessonIndex: 0,
     });
@@ -78,18 +78,16 @@ describe("playerSlice", () => {
   it("should play nothing if there is no lesson available", () => {
     const state = reducer(
       {
-        course: {
-          ...initialStateMock.course,
-          currentLesson: {
-            moduleIndex: 1,
-            lessonIndex: 1,
-          },
+        ...initialStateMock,
+        currentLesson: {
+          moduleIndex: 1,
+          lessonIndex: 1,
         },
       },
       next()
     );
 
-    expect(state.course.currentLesson).toEqual({
+    expect(state.currentLesson).toEqual({
       moduleIndex: 1,
       lessonIndex: 1,
     });
